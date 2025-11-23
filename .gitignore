@@ -1,0 +1,9 @@
+.vscode/settings.json
+mapreduce/crawled_data.txt
+mapreduce/README.md
+mapreduce/target/mapreduce-1.0-SNAPSHOT.jar
+mapreduce/target/classes/engine/search/*.class
+mapreduce/target/maven-archiver/pom.properties
+mapreduce/target/maven-status/maven-compiler-plugin/compile/default-compile/*.lst
+mapreduce/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+mapreduce/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
