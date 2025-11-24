@@ -74,7 +74,6 @@ public class MapReduceSimulation {
                 printResults(map);
                 i++;
             }
-
         }catch(InterruptedException e){
             e.printStackTrace();
         }

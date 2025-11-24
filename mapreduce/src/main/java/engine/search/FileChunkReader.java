@@ -48,26 +48,31 @@ public class FileChunkReader implements Runnable{
                 }
             }
 
-            String textLine; 
-            int tabIndex;
+            readFileLineByLine(reader, currentBytesPos);
 
-            while((textLine = reader.readLine()) != null){
-                int lineSize = textLine.getBytes(StandardCharsets.UTF_8).length + 1;
-
-                if(currentBytesPos > endOffset){
-                    break;
-                }
-
-                tabIndex = textLine.indexOf('\t');
-                String url = textLine.substring(0, tabIndex);
-                String pageContent = textLine.substring(tabIndex + 1); 
-                output.put(new CoursePage(url, pageContent));
-
-                currentBytesPos += lineSize;
-            }
-        }catch(IOException | InterruptedException e){
+       }catch(IOException | InterruptedException e){
             e.printStackTrace();
             Thread.currentThread().interrupt();
         } 
+    }
+
+    private void readFileLineByLine(BufferedReader reader, long currentBytesPos) throws IOException, InterruptedException{
+        String textLine; 
+        int tabIndex;
+
+        while((textLine = reader.readLine()) != null){
+            int lineSize = textLine.getBytes(StandardCharsets.UTF_8).length + 1;
+
+            if(currentBytesPos > endOffset){
+                break;
+            }
+
+            tabIndex = textLine.indexOf('\t');
+            String url = textLine.substring(0, tabIndex);
+            String pageContent = textLine.substring(tabIndex + 1); 
+            output.put(new CoursePage(url, pageContent));
+
+            currentBytesPos += lineSize;
+        }
     }
 }

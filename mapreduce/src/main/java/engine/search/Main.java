@@ -21,11 +21,11 @@ public class Main {
         System.out.println("Crawling completed. Data saved to " + OUTPUT_FILE);
         File file = new File(OUTPUT_FILE);
 
-        if(file.exists()){
-            MapReduceSimulation simulation = new MapReduceSimulation(numberOfMappers, file);
-            simulation.runMapAndSort();
-        } else{
-            System.out.println("File does not exist");
-        }
+        if(!file.exists()){
+            return;
+        } 
+
+        MapReduceSimulation simulation = new MapReduceSimulation(numberOfMappers, file);
+        simulation.runMapAndSort();
     }
 }

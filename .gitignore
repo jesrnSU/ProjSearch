@@ -1,6 +1,5 @@
 .vscode/settings.json
 mapreduce/crawled_data.txt
-mapreduce/README.md
 mapreduce/target/mapreduce-1.0-SNAPSHOT.jar
 mapreduce/target/classes/engine/search/*.class
 mapreduce/target/maven-archiver/pom.properties

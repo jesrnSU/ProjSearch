@@ -26,21 +26,25 @@ public class QueueSorter implements Runnable {
                 String url = page.getWebUrl();
                 String[] words = page.getContent().toLowerCase().split("\\s+");
 
-                for (String word : words) {
-                    if (word.isEmpty())
-                        continue;
-
-                    String strippedWord = word.replaceAll("[^\\p{L}\\p{Z}]", "");
-                    if (strippedWord.isEmpty())
-                        continue;
-
-                    wordCollection.putIfAbsent(strippedWord, new ConcurrentHashMap<>());
-                    ConcurrentHashMap<String, Integer> innerMap = wordCollection.get(strippedWord);
-                    innerMap.merge(url, 1, Integer::sum);
-                }
-            } catch (InterruptedException e) {
+                invertedIndexForWord(url, words);
+           } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void invertedIndexForWord(String url, String[] words){
+        for (String word : words) {
+            if (word.isEmpty())
+                continue;
+
+            String strippedWord = word.replaceAll("[^\\p{L}\\p{Z}]", "");
+                if (strippedWord.isEmpty())
+                    continue;
+
+                wordCollection.putIfAbsent(strippedWord, new ConcurrentHashMap<>());
+                ConcurrentHashMap<String, Integer> innerMap = wordCollection.get(strippedWord);
+                innerMap.merge(url, 1, Integer::sum);
         }
     }
 }
