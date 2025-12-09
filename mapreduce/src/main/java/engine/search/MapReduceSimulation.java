@@ -2,10 +2,15 @@ package engine.search;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+
+/*
+    TODO: Need to properly split this class into functions and make it more readable/reusable
+*/
 
 public class MapReduceSimulation {
     private int numberOfMappers;
@@ -25,17 +30,17 @@ public class MapReduceSimulation {
         List<Thread> sorterThreads = new ArrayList<>();
         List<LinkedBlockingDeque<CoursePage>> allDeques = new ArrayList<>();
 
-        for(int i = 0; i < numberOfMappers; i++){
+        for (int i = 0; i < numberOfMappers; i++) {
             LinkedBlockingDeque<CoursePage> queue = new LinkedBlockingDeque<>(100);
             allDeques.add(queue);
-            
+
             ConcurrentHashMap<String, ConcurrentHashMap<String, Integer>> localMap = new ConcurrentHashMap<>();
             partialMaps.add(localMap);
 
             long start = i * chunkSize;
             long end = start + chunkSize;
 
-            if(i == (numberOfMappers - 1)){
+            if (i == (numberOfMappers - 1)) {
                 end = fileSize;
             }
 
@@ -44,7 +49,7 @@ public class MapReduceSimulation {
             mapperThreads.add(mapThread);
             mapThread.start();
 
-            for(int j = 0; j < 2; j++) {
+            for (int j = 0; j < 2; j++) {
                 QueueSorter sorter = new QueueSorter(queue, localMap);
                 Thread sortThread = new Thread(sorter);
                 sorterThreads.add(sortThread);
@@ -52,29 +57,42 @@ public class MapReduceSimulation {
             }
         }
 
-        try{
-            for(Thread t : mapperThreads){
+        try {
+            for (Thread t : mapperThreads) {
                 t.join();
             }
             System.out.println("All mappers have finished reading");
 
-            for(LinkedBlockingDeque<CoursePage> activeDeque : allDeques){
+            for (LinkedBlockingDeque<CoursePage> activeDeque : allDeques) {
                 activeDeque.put(Main.END_PAGE);
                 activeDeque.put(Main.END_PAGE);
             }
 
-            for(Thread t : sorterThreads){
+            for (Thread t : sorterThreads) {
                 t.join();
             }
             System.out.println("Sorting is done");
 
-            int i = 0;
-            for(ConcurrentHashMap<String, ConcurrentHashMap<String, Integer>> map : partialMaps){
-                System.out.println("--- Result for Mapper " + i + " ---");
-                printResults(map);
-                i++;
+            Merger merger = new Merger(partialMaps);
+            HashMap<String, HashMap<String, Integer>> result = merger.mergeAll();
+
+            for (Map.Entry<String, HashMap<String, Integer>> entry : result.entrySet()) {
+                System.out.println("Word: " + entry.getKey());
+                for (Map.Entry<String, Integer> urlEntry : entry.getValue().entrySet()) {
+                    System.out.println("\tURL: " + urlEntry.getKey() + " count: " + urlEntry.getValue());
+                }
             }
-        }catch(InterruptedException e){
+
+            int i = 0;
+            /*
+             * for(ConcurrentHashMap<String, ConcurrentHashMap<String, Integer>> map :
+             * partialMaps){
+             * System.out.println("--- Result for Mapper " + i + " ---");
+             * printResults(map);
+             * i++;
+             * }
+             */
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
